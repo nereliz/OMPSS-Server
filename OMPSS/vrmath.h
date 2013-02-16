@@ -1,23 +1,18 @@
 #ifndef VRMATH_H
 #define VRMATH_H
 
-#include <QMainWindow>
 #include "server.h"
 
-namespace Ui {
-    class vrMath;
-}
 
-class vrMath : public QMainWindow
+class vrMath : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit vrMath(QWidget *parent = 0);
+    explicit vrMath();
     ~vrMath();
 
 private:
-    Ui::vrMath *ui;
     int i;
     server *myServer;
    // void done();

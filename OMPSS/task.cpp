@@ -3,6 +3,10 @@
 Task::Task()
 {
 }
+Task::~Task()
+{
+}
+
 void Task::run(){
     QTcpSocket socket;
     QString answerID,type,lang;

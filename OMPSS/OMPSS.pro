@@ -5,7 +5,9 @@
 #-------------------------------------------------
 
 QT       += core
-
+QT       += network
+QT       += sql
+QT       += script
 QT       -= gui
 
 TARGET = OMPSS
@@ -16,11 +18,11 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    vrmath.cpp \
+    server.cpp \
     task.cpp \
-    server.cpp
+    vrmath.cpp
 
 HEADERS += \
-    vrmath.h \
+    server.h \
     task.h \
-    server.h
+    vrmath.h

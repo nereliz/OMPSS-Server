@@ -1,45 +1,21 @@
 #include "vrmath.h"
-#include "ui_vrmath.h"
-#include <QDomDocument>
+#include "server.h"
 
-vrMath::vrMath(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::vrMath)
+#include <iostream>
+#include <QSettings>
+
+using namespace std;
+
+vrMath::vrMath()
 {
-    ui->setupUi(this);
-    //Read config;
-     ui->textEdit->append("Server: ");
 
-      QMap<QString, QString> map;
-    QDomDocument doc("xml");
+    QMap<QString, QString> map;
 
-    QFile file("config.xml");
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        ui->textEdit->append("Error: missing config.xml");
-        return;
-    }
-    if (!doc.setContent(&file)) {
-        ui->textEdit->append("Error: missing config.xml3");
-        file.close();
-        return;
-    }
-    file.close();
-    // print out the element names of all elements that are direct children
-    // of the outermost element.
-    QDomElement docElem = doc.documentElement();
-
-    QDomNode n = docElem.firstChild();
-    while(!n.isNull()) {
-        QDomElement e = n.toElement(); // try to convert the node to an element.
-        if(!e.isNull()) {
-            ui->textEdit->append(e.tagName()+"="+e.text());
-            map.insert(e.tagName(),e.text());
-        }
-        n = n.nextSibling();
-    }
-   // ui->textEdit->append(docElem.elementsByTagName("serverPort").at(0).toElement().text());
-
+    QSettings settings( "config.ini", QSettings::IniFormat );
+    settings.beginGroup("user");
+    foreach( const QString &childKey, settings.allKeys() )
+        map.insert( childKey, settings.value( childKey ).toString() );
+    cout<< "Server Starting...  \n";
     myServer=new server();
     myServer->serverAddr=map["serverAddress"];
     myServer->serverPort=map["serverPort"];
@@ -66,61 +42,61 @@ vrMath::vrMath(QWidget *parent) :
     connect(myServer, SIGNAL(dbConnect(int,QString)), this, SLOT(dbStatus(int,QString)));
     connect(myServer, SIGNAL(sendDebug(QString)), this, SLOT(debug(QString)));
     myServer->StartServer();
+    cout<< "Done on " << myServer->serverAddr.toStdString() << ":" << myServer->serverPort.toStdString() <<"\n";
 }
 
 vrMath::~vrMath()
 {
-    delete ui;
 }
 void vrMath::done()
 {
     i++;
-    ui->textEdit->setText(QString::number(i));
+    cout << "Completed Tasks " << i << "\n";
 }
 void vrMath::changeActiveProcessCnt(int cnt)
 {
-   ui->prcCntActiveExe->setText(QString::number(cnt));
+   //ui->prcCntActiveExe->setText(QString::number(cnt));
 }
 void vrMath::changeActiveCompileProcessCnt(int cnt)
 {
-   ui->prcCntCompAct->setText(QString::number(cnt));
+   //ui->prcCntCompAct->setText(QString::number(cnt));
 }
 void vrMath::changeProcessCntCompileTotal(int cnt)
 {
-   ui->prcCntCmpTotal->setText(QString::number(cnt));
+   //ui->prcCntCmpTotal->setText(QString::number(cnt));
 }
 void vrMath::changeProcessCntTotal(int cnt)
 {
-   ui->prcCntTotal->setText(QString::number(cnt));
+   //ui->prcCntTotal->setText(QString::number(cnt));
 }
 void vrMath::changeProcessExeCntTotal(int cnt)
 {
-   ui->prcCntExeTotal->setText(QString::number(cnt));
+   //ui->prcCntExeTotal->setText(QString::number(cnt));
 }
 void vrMath::addActiveProcess(QString name,int id)
 {
-    ui->activeProcess->addItem(name,id);
+    //ui->activeProcess->addItem(name,id);
 }
 void vrMath::remActiveProcess(int id)
 {
-    ui->activeProcess->removeItem(ui->activeProcess->findData(id));
+    //ui->activeProcess->removeItem(ui->activeProcess->findData(id));
 }
 void vrMath::killActiveProcess()
 {
-    myServer->killActiveProcess(ui->activeProcess->itemData(ui->activeProcess->currentIndex()).toInt());
-    this->ui->activeProcess->removeItem(this->ui->activeProcess->currentIndex());
+    //myServer->killActiveProcess(ui->activeProcess->itemData(ui->activeProcess->currentIndex()).toInt());
+    //this->ui->activeProcess->removeItem(this->ui->activeProcess->currentIndex());
 }
 void vrMath::dbStatus(int status, QString error)
 {
     if (status<0) {
-        ui->textEdit->append("Database error: ");
-        ui->textEdit->append(error);
+       // ui->textEdit->append("Database error: ");
+       // ui->textEdit->append(error);
     }
     else {
-        ui->textEdit->append("Connected to database");
+        //ui->textEdit->append("Connected to database");
     }
 }
 void vrMath::debug(QString text)
 {
-    ui->textEdit->append(text);
+    //ui->textEdit->append(text);
 }

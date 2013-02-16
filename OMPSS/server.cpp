@@ -1,4 +1,5 @@
 #include "server.h"
+#include <QtSql/QSqlDatabase>
 #include <QDebug>
 
 server::server(QObject *parent) :
@@ -14,11 +15,16 @@ server::server(QObject *parent) :
      processCntCompileTotal=0;
      count=0;
 }
+
+server::~server()
+{
+}
+
 void server::StartServer()
 {
     QHostAddress hostadd(this->serverAddr);
     this->listen(hostadd,this->serverPort.toInt());
-    this->connectToDB();
+    //this->connectToDB();
 }
 void server::incomingConnection(int handle)
 {
@@ -172,13 +178,13 @@ void server::executeProgram(QStringList list)
 void server::finishedExeProgram(int i)
 {
     int j=ProgramList.indexOf((QProcess*)sender());
-    QSqlQuery query(db);
+    //QSqlQuery query(db);
     QDateTime dateTime = QDateTime::currentDateTime();
-    query.prepare("UPDATE math.answer  SET  an_complete = 1, an_answer = :an,  an_complete_date = :date  WHERE an_id=:id");
+    /*query.prepare("UPDATE math.answer  SET  an_complete = 1, an_answer = :an,  an_complete_date = :date  WHERE an_id=:id");
     query.bindValue(":an", QString(ProgramList.at(j)->readAllStandardError())+QString(ProgramList.at(j)->readAllStandardOutput()));
     query.bindValue(":date",dateTime.toString("yyyy-MM-dd hh:mm:ss"));
     query.bindValue(":id", ProgramParam.at(j).at(1));
-    query.exec();
+    query.exec();*/
     ProgramList.takeAt(j)->deleteLater();
     emit activeProcessRemoved(ProgramParam.at(j).at(1).toInt());
     ProgramParam.remove(j);
@@ -233,14 +239,14 @@ void server::compileProgram(QStringList list)
     QString str;
     QString script;
     QString dir=QDir::current().absolutePath()+"/"+list.at(0)+"/"+list.at(0);
-    QSqlQuery query(db);
+    //QSqlQuery query(db);
     QString prname=list.at(0);
     QDir().mkdir(prname);
     if (list.at(2)=="C++")
     {
         env.insert("PATH", env.value("Path") + ";"+this->cppCompilerBinDir);
         QFile file(dir+".cpp");
-        query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
+        /*query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
         if (query.next())
         {
             script=query.value(0).toString();
@@ -249,14 +255,14 @@ void server::compileProgram(QStringList list)
                    qDebug()<<"Neatidare";
         QTextStream out(&file);
         out << script << "\n";
-        file.close();
+        file.close();*/
         str="\""+this->cppCompilerPath+"\" \""+dir+".cpp\""+" -o \""+dir+".exe\" \""+QDir::current().absolutePath()+"/lib/liblapack.a\" \""+QDir::current().absolutePath()+"/lib/libblas.a\" \""+QDir::current().absolutePath()+"/lib/libf2c.a\"";
     }
     if (list.at(2)=="Java")
     {
         env.insert("PATH", env.value("Path") + ";"+javaCompilerBinDir);
         QFile file(dir+".java");
-        query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
+        /*query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
         if (query.next())
         {
             script=query.value(0).toString();
@@ -265,13 +271,13 @@ void server::compileProgram(QStringList list)
                    qDebug()<<"Neatidare";
         QTextStream out(&file);
         out << script << "\n";
-        file.close();
+        file.close();*/
         str="\""+javaCompilerPath+"\" \""+dir+".java\" ";
     }
     else if (list.at(2)=="Qt")
     {
         QFile file(dir+".cpp");
-        query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
+        /*query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
         if (query.next())
         {
             script=query.value(0).toString();
@@ -280,7 +286,7 @@ void server::compileProgram(QStringList list)
                    qDebug()<<"Neatidare";
         QTextStream out(&file);
         out << script << "\n";
-        file.close();
+        file.close();*/
 
         QFile file2(dir+".pro");
            if (!file2.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -305,7 +311,7 @@ void server::compileProgram(QStringList list)
     else if (list.at(2)=="Fortran")
     {
         QFile file(dir+".f");
-        query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
+        /*query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
         if (query.next())
         {
             script=query.value(0).toString();
@@ -314,7 +320,7 @@ void server::compileProgram(QStringList list)
                    qDebug()<<"Neatidare";
         QTextStream out(&file);
         out << script << "\n";
-        file.close();
+        file.close();*/
         str="\""+this->fortranCompilerPath+"\" \""+dir+".f\""+" -o \""+dir+".exe\"  \""+QDir::current().absolutePath()+"/lib/libflapack.a\" \""+QDir::current().absolutePath()+"/lib/libfblas.a\" \""+QDir::current().absolutePath()+"/lib/libftmglib.a\"";
     }
     QProcess *proc=new QProcess(this);
@@ -381,11 +387,11 @@ void server::compileProgram(QStringList list)
 void server::finishedCompProgram(int i)
 {
     int j=CompileList.indexOf((QProcess*)sender());
-    QSqlQuery query(db);
+    //QSqlQuery query(db);
     QDateTime dateTime = QDateTime::currentDateTime();
     QString data=CompileList.last()->readAllStandardOutput();
     data=CompileList.last()->readAllStandardError();
-    query.exec("UPDATE math.answer  SET  an_complete = 1, an_answer = '"+data.replace(QDir::current().absolutePath(),"").replace("'","\"")+"',  an_complete_date = '"+dateTime.toString("yyyy-MM-dd hh:mm:ss")+"'  WHERE an_id="+CompileParam.at(j).at(1));
+    //query.exec("UPDATE math.answer  SET  an_complete = 1, an_answer = '"+data.replace(QDir::current().absolutePath(),"").replace("'","\"")+"',  an_complete_date = '"+dateTime.toString("yyyy-MM-dd hh:mm:ss")+"'  WHERE an_id="+CompileParam.at(j).at(1));
     CompileList.takeAt(j)->deleteLater();
     emit activeProcessRemoved(CompileParam.at(j).at(1).toInt());
     CompileParam.remove(j);

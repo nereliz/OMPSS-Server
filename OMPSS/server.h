@@ -1,8 +1,9 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <QTcpServer>
-#include <QTcpSocket>
+#include <QtNetwork/QTcpServer>
+#include <QtNetwork/QTcpSocket>
+#include <QtNetwork/QHostAddress>
 #include <QThreadPool>
 #include <QProcess>
 #include "task.h"
@@ -12,6 +13,8 @@ class server : public QTcpServer
     Q_OBJECT
 
 public:
+    server( QObject );
+    ~server();
     explicit server(QObject *parent = 0);
     void StartServer();
     int getActiveExeProcessCnt(), getActiveProcessCntTotal(),getActiveCompileProcessCnt();

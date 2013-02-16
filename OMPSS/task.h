@@ -6,17 +6,20 @@
 #include <QThread>
 #include <QProcess>
 #include <QByteArray>
-#include <QtNetwork>
-#include <QSqlError>
-#include <QSqlDatabase>
-#include <QSqlQuery>
-#include <QtScript>
+#include <QtNetwork/QtNetwork>
+#include <QtSql/QSqlError>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlQuery>
+#include <QtScript/QtScript>
+#include <iostream>
 #include <stdlib.h>
-#include <QMessageBox>
+//#include <QMessageBox>
 #include <QDateTime>
 #include <QProcess>
 #include <QUuid>
 #include <QDir>
+
+using namespace std;
 
 class Task : public QObject, public QRunnable
 {
@@ -24,6 +27,7 @@ class Task : public QObject, public QRunnable
 
 public:
     Task();
+    ~Task();
     void run();
     int id;
     int socketDescriptor;
