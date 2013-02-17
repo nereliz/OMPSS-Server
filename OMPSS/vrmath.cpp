@@ -42,7 +42,6 @@ vrMath::vrMath()
     connect(myServer, SIGNAL(dbConnect(int,QString)), this, SLOT(dbStatus(int,QString)));
     connect(myServer, SIGNAL(sendDebug(QString)), this, SLOT(debug(QString)));
     myServer->StartServer();
-    cout<< "Done on " << myServer->serverAddr.toStdString() << ":" << myServer->serverPort.toStdString() <<"\n";
 }
 
 vrMath::~vrMath()
@@ -51,27 +50,28 @@ vrMath::~vrMath()
 void vrMath::done()
 {
     i++;
-    cout << "Completed Tasks " << i << "\n";
+    cout << "nonce \n";
+    //return "Completed tasks: " + QString::number(i) + "\n";
 }
 void vrMath::changeActiveProcessCnt(int cnt)
 {
-   //ui->prcCntActiveExe->setText(QString::number(cnt));
+    //return "Active processes: " +  QString::number(cnt) + "\n";
 }
 void vrMath::changeActiveCompileProcessCnt(int cnt)
 {
-   //ui->prcCntCompAct->setText(QString::number(cnt));
+    //return "Active compiles: " +  QString::number(cnt) + "\n";
 }
 void vrMath::changeProcessCntCompileTotal(int cnt)
 {
-   //ui->prcCntCmpTotal->setText(QString::number(cnt));
+    //return "Compiling + que compile procesese" +  QString::number(cnt) + "\n";
 }
 void vrMath::changeProcessCntTotal(int cnt)
 {
-   //ui->prcCntTotal->setText(QString::number(cnt));
+      //return "Running + que compile procesese" +  QString::number(cnt) + "\n";
 }
 void vrMath::changeProcessExeCntTotal(int cnt)
 {
-   //ui->prcCntExeTotal->setText(QString::number(cnt));
+      //return "Executible + que compile procesese" +  QString::number(cnt) + "\n";
 }
 void vrMath::addActiveProcess(QString name,int id)
 {

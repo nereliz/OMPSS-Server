@@ -22,13 +22,20 @@ server::~server()
 
 void server::StartServer()
 {
-    QHostAddress hostadd(this->serverAddr);
-    this->listen(hostadd,this->serverPort.toInt());
-    //this->connectToDB();
+    cout<< this->serverAddr.toStdString();
+    //QHostAddress hostadd(this->serverAddr);
+    //this->listen(hostadd,this->serverPort.toInt());
+    this->listen( QHostAddress::Any,this->serverPort.toInt() );
+    if( this->isListening() )
+        cout << "listening " << this->serverAddr.toStdString() << ":" << this->serverPort.toStdString() <<"\n";
+    else
+        cout << "listening failed\n";
+    this->connectToDB();
 }
 void server::incomingConnection(int handle)
 {
     count++;
+    cout << count << " : conected \n";
     Task *e= new Task();
     e->socketDescriptor=handle;
     e->id=count;
@@ -116,10 +123,11 @@ void server::connectToDB()
 {
         int status=0;
         QString error="";
-        db = QSqlDatabase::addDatabase("QODBC");
+        db = QSqlDatabase::addDatabase("QMYSQL");
+        db.setHostName("192.168.1.11");
         db.setDatabaseName("math");
-        db.setUserName("root");
-        db.setPassword("");
+        db.setUserName("user_math");
+        db.setPassword("qwerty78");
         if (!db.open()) {
          error=db.lastError().text();
          status=-1;
@@ -178,13 +186,13 @@ void server::executeProgram(QStringList list)
 void server::finishedExeProgram(int i)
 {
     int j=ProgramList.indexOf((QProcess*)sender());
-    //QSqlQuery query(db);
+    QSqlQuery query(db);
     QDateTime dateTime = QDateTime::currentDateTime();
-    /*query.prepare("UPDATE math.answer  SET  an_complete = 1, an_answer = :an,  an_complete_date = :date  WHERE an_id=:id");
+    query.prepare("UPDATE math.answer  SET  an_complete = 1, an_answer = :an,  an_complete_date = :date  WHERE an_id=:id");
     query.bindValue(":an", QString(ProgramList.at(j)->readAllStandardError())+QString(ProgramList.at(j)->readAllStandardOutput()));
     query.bindValue(":date",dateTime.toString("yyyy-MM-dd hh:mm:ss"));
     query.bindValue(":id", ProgramParam.at(j).at(1));
-    query.exec();*/
+    query.exec();
     ProgramList.takeAt(j)->deleteLater();
     emit activeProcessRemoved(ProgramParam.at(j).at(1).toInt());
     ProgramParam.remove(j);
@@ -239,14 +247,14 @@ void server::compileProgram(QStringList list)
     QString str;
     QString script;
     QString dir=QDir::current().absolutePath()+"/"+list.at(0)+"/"+list.at(0);
-    //QSqlQuery query(db);
+    QSqlQuery query(db);
     QString prname=list.at(0);
     QDir().mkdir(prname);
     if (list.at(2)=="C++")
     {
         env.insert("PATH", env.value("Path") + ";"+this->cppCompilerBinDir);
         QFile file(dir+".cpp");
-        /*query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
+        query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
         if (query.next())
         {
             script=query.value(0).toString();
@@ -255,14 +263,14 @@ void server::compileProgram(QStringList list)
                    qDebug()<<"Neatidare";
         QTextStream out(&file);
         out << script << "\n";
-        file.close();*/
+        file.close();
         str="\""+this->cppCompilerPath+"\" \""+dir+".cpp\""+" -o \""+dir+".exe\" \""+QDir::current().absolutePath()+"/lib/liblapack.a\" \""+QDir::current().absolutePath()+"/lib/libblas.a\" \""+QDir::current().absolutePath()+"/lib/libf2c.a\"";
     }
     if (list.at(2)=="Java")
     {
         env.insert("PATH", env.value("Path") + ";"+javaCompilerBinDir);
         QFile file(dir+".java");
-        /*query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
+        query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
         if (query.next())
         {
             script=query.value(0).toString();
@@ -271,13 +279,13 @@ void server::compileProgram(QStringList list)
                    qDebug()<<"Neatidare";
         QTextStream out(&file);
         out << script << "\n";
-        file.close();*/
+        file.close();
         str="\""+javaCompilerPath+"\" \""+dir+".java\" ";
     }
     else if (list.at(2)=="Qt")
     {
         QFile file(dir+".cpp");
-        /*query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
+        query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
         if (query.next())
         {
             script=query.value(0).toString();
@@ -286,7 +294,7 @@ void server::compileProgram(QStringList list)
                    qDebug()<<"Neatidare";
         QTextStream out(&file);
         out << script << "\n";
-        file.close();*/
+        file.close();
 
         QFile file2(dir+".pro");
            if (!file2.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -311,7 +319,7 @@ void server::compileProgram(QStringList list)
     else if (list.at(2)=="Fortran")
     {
         QFile file(dir+".f");
-        /*query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
+        query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
         if (query.next())
         {
             script=query.value(0).toString();
@@ -320,7 +328,7 @@ void server::compileProgram(QStringList list)
                    qDebug()<<"Neatidare";
         QTextStream out(&file);
         out << script << "\n";
-        file.close();*/
+        file.close();
         str="\""+this->fortranCompilerPath+"\" \""+dir+".f\""+" -o \""+dir+".exe\"  \""+QDir::current().absolutePath()+"/lib/libflapack.a\" \""+QDir::current().absolutePath()+"/lib/libfblas.a\" \""+QDir::current().absolutePath()+"/lib/libftmglib.a\"";
     }
     QProcess *proc=new QProcess(this);

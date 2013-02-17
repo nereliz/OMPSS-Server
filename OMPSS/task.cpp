@@ -2,12 +2,14 @@
 
 Task::Task()
 {
+    cout << "Task created\n";
 }
 Task::~Task()
 {
 }
 
 void Task::run(){
+    cout << "Task runned\n";
     QTcpSocket socket;
     QString answerID,type,lang;
     socket.setSocketDescriptor(this->socketDescriptor);
