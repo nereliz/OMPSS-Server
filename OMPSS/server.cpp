@@ -272,7 +272,7 @@ void server::compileProgram(QStringList list)
         QTextStream out(&file);
         out << script << "\n";
         file.close();
-        str= this->cppCompilerPath + " -Wall -W -Werror " + dir + ".cpp " + " -o " + dir;
+        str= "/usr/bin/sudo " +  this->cppCompilerPath + " -Wall -W -Werror " + dir + ".cpp " + " -o " + dir;
     }
     if (list.at(2)=="Java")
     {
@@ -350,7 +350,6 @@ void server::compileProgram(QStringList list)
          {
             CompileList.last()->setProcessEnvironment(env);
             CompileList.last()->start(str);
-            cout << "Debug: comand " << str.toStdString() << "\n";
          }
          else if (CompileParam.last().at(2)=="Java")
          { // qDebug()<<"start java";
@@ -438,7 +437,7 @@ void server::finishedCompProgram(int i)
                       QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
                       env.insert("PATH", env.value("Path") + ";"+this->cppCompilerBinDir);
                       QString dir=QDir::current().absolutePath()+"/"+list.at(0)+"/"+list.at(0);
-                      str=this->cppCompilerPath + " -Wall -W -Werror " + dir + ".cpp " + " -o " + dir;
+                      str = "/usr/bin/sudo " + this->cppCompilerPath + " -Wall -W -Werror " + dir + ".cpp " + " -o " + dir;
                       CompileList.at(k)->setProcessEnvironment(env);
                       CompileList.at(k)->start(str);
                   }
