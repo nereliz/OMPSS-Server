@@ -6,6 +6,7 @@
 #include <QtNetwork/QHostAddress>
 #include <QThreadPool>
 #include <QProcess>
+#include <QProcess>
 #include "task.h"
 
 class server : public QTcpServer
@@ -59,6 +60,7 @@ private slots:
     void decreaseActiveExeProcessCnt();
     void finishedExeProgram(int);
     void finishedCompProgram(int);
+    void errorCompProgram(QProcess::ProcessError);
     void executeProgram(QStringList);
     void compileProgram(QStringList);
 

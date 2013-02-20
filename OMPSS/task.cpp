@@ -9,7 +9,7 @@ Task::~Task()
 }
 
 void Task::run(){
-    cout << "Task runned\n";
+    cout << "Task running\n";
     QTcpSocket socket;
     QString answerID,type,lang;
     socket.setSocketDescriptor(this->socketDescriptor);

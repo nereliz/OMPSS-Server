@@ -26,3 +26,6 @@ HEADERS += \
     server.h \
     task.h \
     vrmath.h
+
+OTHER_FILES += \
+    config.ini

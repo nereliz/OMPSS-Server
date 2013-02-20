@@ -16,6 +16,7 @@ vrMath::vrMath()
     foreach( const QString &childKey, settings.allKeys() )
         map.insert( childKey, settings.value( childKey ).toString() );
     cout<< "Server Starting...  \n";
+
     myServer=new server();
     myServer->serverAddr=map["serverAddress"];
     myServer->serverPort=map["serverPort"];

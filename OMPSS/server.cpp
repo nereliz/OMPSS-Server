@@ -22,10 +22,16 @@ server::~server()
 
 void server::StartServer()
 {
-    cout<< this->serverAddr.toStdString();
-    //QHostAddress hostadd(this->serverAddr);
-    //this->listen(hostadd,this->serverPort.toInt());
-    this->listen( QHostAddress::Any,this->serverPort.toInt() );
+    if( this->serverAddr == "%" )
+    {
+        this->listen( QHostAddress::Any,this->serverPort.toInt() );
+    }
+    else
+    {
+        QHostAddress hostadd(this->serverAddr);
+        this->listen(hostadd,this->serverPort.toInt());
+    }
+
     if( this->isListening() )
         cout << "listening " << this->serverAddr.toStdString() << ":" << this->serverPort.toStdString() <<"\n";
     else
@@ -159,7 +165,7 @@ void server::executeProgram(QStringList list)
     }
     else
     {
-        str=QDir::current().absolutePath()+"/"+list[0]+"/"+list[0]+".exe";
+        str=QDir::current().absolutePath()+"/"+list[0]+"/"+list[0];
         path=str;
     }
     if (progPath.exists(path))
@@ -238,6 +244,7 @@ void server::finishedExeProgram(int i)
 }
 void server::compileProgram(QStringList list)
 {
+    cout << "Compiling task \n";
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     this->processCntCompileTotal++;
     emit this->processCntCompileTotalChange(processCntCompileTotal);
@@ -250,6 +257,7 @@ void server::compileProgram(QStringList list)
     QSqlQuery query(db);
     QString prname=list.at(0);
     QDir().mkdir(prname);
+
     if (list.at(2)=="C++")
     {
         env.insert("PATH", env.value("Path") + ";"+this->cppCompilerBinDir);
@@ -260,11 +268,11 @@ void server::compileProgram(QStringList list)
             script=query.value(0).toString();
         }
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-                   qDebug()<<"Neatidare";
+                   cout << "File opening failed \n";
         QTextStream out(&file);
         out << script << "\n";
         file.close();
-        str="\""+this->cppCompilerPath+"\" \""+dir+".cpp\""+" -o \""+dir+".exe\" \""+QDir::current().absolutePath()+"/lib/liblapack.a\" \""+QDir::current().absolutePath()+"/lib/libblas.a\" \""+QDir::current().absolutePath()+"/lib/libf2c.a\"";
+        str= this->cppCompilerPath + " -Wall -W -Werror " + dir + ".cpp " + " -o " + dir;
     }
     if (list.at(2)=="Java")
     {
@@ -334,6 +342,7 @@ void server::compileProgram(QStringList list)
     QProcess *proc=new QProcess(this);
     CompileList.append(proc);
     connect(CompileList.last(), SIGNAL(finished(int)),this , SLOT(finishedCompProgram(int)));
+    connect(CompileList.last(), SIGNAL(error(QProcess::ProcessError)),this , SLOT(errorCompProgram(QProcess::ProcessError)));
      QString name="comp "+list[1]+" "+list[0];
      if (activeCompileProcessCnt<2)
       {
@@ -341,6 +350,7 @@ void server::compileProgram(QStringList list)
          {
             CompileList.last()->setProcessEnvironment(env);
             CompileList.last()->start(str);
+            cout << "Debug: comand " << str.toStdString() << "\n";
          }
          else if (CompileParam.last().at(2)=="Java")
          { // qDebug()<<"start java";
@@ -394,12 +404,13 @@ void server::compileProgram(QStringList list)
 }
 void server::finishedCompProgram(int i)
 {
+    cout<< "Debug: Finished comp slot";
     int j=CompileList.indexOf((QProcess*)sender());
-    //QSqlQuery query(db);
+    QSqlQuery query(db);
     QDateTime dateTime = QDateTime::currentDateTime();
     QString data=CompileList.last()->readAllStandardOutput();
     data=CompileList.last()->readAllStandardError();
-    //query.exec("UPDATE math.answer  SET  an_complete = 1, an_answer = '"+data.replace(QDir::current().absolutePath(),"").replace("'","\"")+"',  an_complete_date = '"+dateTime.toString("yyyy-MM-dd hh:mm:ss")+"'  WHERE an_id="+CompileParam.at(j).at(1));
+    query.exec("UPDATE math.answer  SET  an_complete = 1, an_answer = '"+data.replace(QDir::current().absolutePath(),"").replace("'","\"")+"',  an_complete_date = '"+dateTime.toString("yyyy-MM-dd hh:mm:ss")+"'  WHERE an_id="+CompileParam.at(j).at(1));
     CompileList.takeAt(j)->deleteLater();
     emit activeProcessRemoved(CompileParam.at(j).at(1).toInt());
     CompileParam.remove(j);
@@ -420,13 +431,14 @@ void server::finishedCompProgram(int i)
                   list=CompileParam.at(k);
                   int currnetID=list.at(1).toInt();
                   QString name="comp "+list[1]+" "+list[0];
+                  cout<<"finished" << name.toStdString() << "\n";
                   QString str;
                   if (list.at(2)=="C++")
                   {
                       QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
                       env.insert("PATH", env.value("Path") + ";"+this->cppCompilerBinDir);
                       QString dir=QDir::current().absolutePath()+"/"+list.at(0)+"/"+list.at(0);
-                      str="\""+this->cppCompilerPath+"\" \""+dir+".cpp\""+" -o \""+dir+".exe\" \""+QDir::current().absolutePath()+"/lib/liblapack.a\" \""+QDir::current().absolutePath()+"/lib/libblas.a\" \""+QDir::current().absolutePath()+"/lib/libf2c.a\"";
+                      str=this->cppCompilerPath + " -Wall -W -Werror " + dir + ".cpp " + " -o " + dir;
                       CompileList.at(k)->setProcessEnvironment(env);
                       CompileList.at(k)->start(str);
                   }
@@ -487,4 +499,9 @@ void server::finishedCompProgram(int i)
               }
           }
     }
+}
+
+void server::errorCompProgram(QProcess::ProcessError ecode)
+{
+    cout<< "Error catched";
 }
