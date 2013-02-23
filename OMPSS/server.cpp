@@ -33,15 +33,16 @@ void server::StartServer()
     }
 
     if( this->isListening() )
-        cout << "listening " << this->serverAddr.toStdString() << ":" << this->serverPort.toStdString() <<"\n";
+        cout << "Port listening on " << this->serverAddr.toStdString() << ":" << this->serverPort.toStdString() <<"\n";
     else
-        cout << "listening failed\n";
+    {
+        cout << "Port listening failed\n";
+    }
     this->connectToDB();
 }
 void server::incomingConnection(int handle)
 {
     count++;
-    cout << count << " : conected \n";
     Task *e= new Task();
     e->socketDescriptor=handle;
     e->id=count;
@@ -130,10 +131,10 @@ void server::connectToDB()
         int status=0;
         QString error="";
         db = QSqlDatabase::addDatabase("QMYSQL");
-        db.setHostName("192.168.1.11");
-        db.setDatabaseName("math");
-        db.setUserName("user_math");
-        db.setPassword("qwerty78");
+        db.setHostName( this->dbServer );
+        db.setDatabaseName( this->dbName );
+        db.setUserName( this->dbUser );
+        db.setPassword(this->dbPassword );
         if (!db.open()) {
          error=db.lastError().text();
          status=-1;
@@ -142,28 +143,27 @@ void server::connectToDB()
 }
 void server::executeProgram(QStringList list)
 {
-    QString name="exe "+list[1]+" "+list[0];
+    QString name="binary "+list[1]+" "+list[0];
     QString str,path;
     QDir progPath;
     QString dir = QDir::current().absolutePath()+"/"+list[0];
-    QString dirOrig = QDir::current().absolutePath();
     QString lang = list.at(2);
     if (list.at(2)=="Java")
     {
-        QDir myDir(QDir::current().absolutePath()+"/"+list[0]+"/");
+        QDir myDir( dir );
         QStringList filter;
         QString prName="";
         filter.append("*.class");
         filter=myDir.entryList(filter);
         if (filter.size()>0)
             prName=filter.at(0).split(".").at(0);
-        //str="/usr/bin/sudo "+this->javaExecutePath+" "+prName+ " test ";//+javaClass;
-        str="java "+prName+ " test ";//+javaClass;
-        path=QDir::current().absolutePath()+"/"+list[0]+"/"+prName+".class";
+
+        str="/usr/bin/sudo "+this->javaExecutePath+" "+prName+ " test ";//+javaClass;
+        path= dir+"/"+prName+".class";
     }
     else
     {
-        str=QDir::current().absolutePath()+"/"+list[0]+"/"+list[0];
+        str=dir+"/"+list[0];
         path=str;
     }
     if (progPath.exists(path))
@@ -190,8 +190,7 @@ void server::executeProgram(QStringList list)
             }
             else
                 ProgramList.last()->start(str,list);
-            cout<< "calling: " << str.toStdString() << "\n";
-            //ProgramList.last()->start("java test eikit nx");
+
             increaseActiveExeProcessCnt();
             emit activeProcessAdded(name,ProgramParam.last().at(1).toInt());
          }
@@ -199,6 +198,8 @@ void server::executeProgram(QStringList list)
 }
 void server::finishedExeProgram(int i)
 {
+    QString dir;
+    QString lang;
     int j=ProgramList.indexOf((QProcess*)sender());
     QSqlQuery query(db);
     QDateTime dateTime = QDateTime::currentDateTime();
@@ -211,7 +212,6 @@ void server::finishedExeProgram(int i)
     emit activeProcessRemoved(ProgramParam.at(j).at(1).toInt());
     ProgramParam.remove(j);
     QStringList list;
-
     this->decreaseActiveExeProcessCnt();
     if (activeExeProcessCnt<maxExeProgramCount)
     {
@@ -220,25 +220,39 @@ void server::finishedExeProgram(int i)
               if (ProgramList.at(k)->state()==QProcess::NotRunning)
               {
                   list=ProgramParam.at(k);
+                  dir = QDir::current().absolutePath()+"/"+list[0];
+                  lang = list.at(2);
                   int currnetID=list.at(1).toInt();
-                  QString name="exe "+list[1]+" "+list[0];
+                  QString name="binary "+list[1]+" "+list[0];
                   QString str;
                   if (list.at(2)=="Java")
                   {
-                     QDir myDir(QDir::current().absolutePath()+"/"+list[0]+"/");
+                     QDir myDir( dir );
                      QStringList filter;
                      QString prName="";
                      filter.append("*.class");
                      filter=myDir.entryList(filter);
                      if (filter.size()>0)
                          prName=filter.at(0).split(".").at(0);
-                     str="\""+this->javaExecutePath.replace("/","\\")+"\" -cp \""+QDir::current().absolutePath().replace("/","\\")+"\\"+list[0]+"\" "+prName;//+javaClass;
+
+                     str="/usr/bin/sudo "+this->javaExecutePath+" "+prName+ " test ";//+javaClass;
                   }
-                  else  str=QDir::current().absolutePath()+"/"+list[0]+"/"+list[0]+".exe";
+                  else
+                      str=dir+"/"+list[0];
+
                   list.pop_front();
                   list.pop_front();
                   list.pop_front();
-                  ProgramList.at(k)->start(str,list);
+                  if( lang=="Java" )
+                  {
+                      ProgramList.at(k)->setWorkingDirectory( dir );
+                      foreach( QString arg, list)
+                          str += " " + arg;
+                      ProgramList.at(k)->start(str);
+                  }
+                  else
+                      ProgramList.at(k)->start(str,list);
+
                   emit activeProcessAdded(name,currnetID);
                   emit increaseActiveExeProcessCnt();
                   break;
@@ -248,7 +262,6 @@ void server::finishedExeProgram(int i)
 }
 void server::compileProgram(QStringList list)
 {
-    cout << "Compiling task \n";
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     this->processCntCompileTotal++;
     emit this->processCntCompileTotalChange(processCntCompileTotal);
@@ -276,7 +289,7 @@ void server::compileProgram(QStringList list)
         QTextStream out(&file);
         out << script << "\n";
         file.close();
-        str= "/usr/bin/sudo " +  this->cppCompilerPath + " -Wall -W -Werror " + dir + ".cpp " + " -o " + dir;
+        str= "/usr/bin/sudo " +  this->cppCompilerPath + " -Wall -W " + dir + ".cpp " + " -o " + dir;
     }
     if (list.at(2)=="Java")
     {
@@ -308,8 +321,8 @@ void server::compileProgram(QStringList list)
         out << script << "\n";
         file.close();
 
-        str = "/usr/bin/sudo " + QDir::current().absolutePath() + "/qtCompiler.sh " + QDir::current().absolutePath()+"/"+list.at(0);
-        str += " " + this->qtCompilerPath + " /usr/bin/make";
+        str = "/usr/bin/sudo " + QDir::current().absolutePath() + "/qtCompiler.sh " + dir;
+        str += " " + this->qtCompilerPath + " " + this->makePath;
 
     }
     else if (list.at(2)=="Fortran")
@@ -336,6 +349,7 @@ void server::compileProgram(QStringList list)
       {
          if (CompileParam.last().at(2)=="C++")
          {
+             cout<< "command:" << str.toStdString() << "\n";
             CompileList.last()->setProcessEnvironment(env);
             CompileList.last()->start(str);
          }
@@ -387,14 +401,13 @@ void server::finishedCompProgram(int i)
                   list=CompileParam.at(k);
                   int currnetID=list.at(1).toInt();
                   QString name="comp "+list[1]+" "+list[0];
-                  cout<<"finished" << name.toStdString() << "\n";
                   QString str;
+                  QString dir=QDir::current().absolutePath()+"/"+list.at(0)+"/"+list.at(0);
                   if (list.at(2)=="C++")
                   {
                       QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
                       env.insert("PATH", env.value("Path") + ";"+this->cppCompilerBinDir);
-                      QString dir=QDir::current().absolutePath()+"/"+list.at(0)+"/"+list.at(0);
-                      str = "/usr/bin/sudo " + this->cppCompilerPath + " -Wall -W -Werror " + dir + ".cpp " + " -o " + dir;
+                      str = "/usr/bin/sudo " + this->cppCompilerPath + " -Wall -W " + dir + ".cpp " + " -o " + dir;
                       CompileList.at(k)->setProcessEnvironment(env);
                       CompileList.at(k)->start(str);
                   }
@@ -402,21 +415,19 @@ void server::finishedCompProgram(int i)
                   {
                       QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
                       env.insert("PATH", env.value("Path") + ";"+javaCompilerBinDir);
-                      QString dir=QDir::current().absolutePath()+"/"+list.at(0)+"/"+list.at(0);
                       str="/usr/bin/sudo "+javaCompilerPath+" " + dir + ".java";
                       CompileList.at(k)->setProcessEnvironment(env);
                       CompileList.at(k)->start(str);
                   }
                   else if (list.at(2)=="Fortran")
                   {
-                      QString dir=QDir::current().absolutePath()+"/"+list.at(0)+"/"+list.at(0);
                       str="/usr/bin/sudo "+this->fortranCompilerPath + " " + dir + ".f -o " + dir;
                       CompileList.at(k)->start(str);
                   }
                   else if (list.at(2)=="Qt")
                   {
                        str = "/usr/bin/sudo " + QDir::current().absolutePath() + "/qtCompiler.sh " + QDir::current().absolutePath()+"/"+list.at(0);
-                       str += " " + this->qtCompilerPath + " /usr/bin/make";
+                       str += " " + this->qtCompilerPath + " " + this->makePath;
                        CompileList.at(k)->start(str);
                   }
 

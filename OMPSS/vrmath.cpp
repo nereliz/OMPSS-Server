@@ -33,47 +33,22 @@ vrMath::vrMath()
     myServer->fortranCompilerPath=map["fortranCompilerPath"];
     myServer->maxExeProgramCount=map["maxExeProgramCount"].toInt();
     myServer->maxCompProgramCount=map["maxCompProgramCount"].toInt();
-    connect(myServer, SIGNAL(activeProcessCntChange(int)), this, SLOT(changeActiveProcessCnt(int)));
-    connect(myServer, SIGNAL(processCntExeTotalChange(int)), this, SLOT(changeProcessExeCntTotal(int)));
-    connect(myServer, SIGNAL(processCntTotalChange(int)), this, SLOT(changeProcessCntTotal(int)));
-    connect(myServer, SIGNAL(processCntCompileTotalChange(int)), this, SLOT(changeProcessCntCompileTotal(int)));
-    connect(myServer, SIGNAL(activeCompileProcessCntChange(int)), this, SLOT(changeActiveCompileProcessCnt(int)));
+    myServer->makePath = map["makePath"];
+    myServer->dbServer = map["dbServer"];
+    myServer->dbName = map["dbName"];
+    myServer->dbUser = map["dbUser"];
+    myServer->dbPassword = map["dbPassword"];
+
     connect(myServer, SIGNAL(activeProcessAdded(QString,int)), this, SLOT(addActiveProcess(QString,int)));
     connect(myServer, SIGNAL(activeProcessRemoved(int)), this, SLOT(remActiveProcess(int)));
     connect(myServer, SIGNAL(dbConnect(int,QString)), this, SLOT(dbStatus(int,QString)));
-    connect(myServer, SIGNAL(sendDebug(QString)), this, SLOT(debug(QString)));
     myServer->StartServer();
 }
 
 vrMath::~vrMath()
 {
 }
-void vrMath::done()
-{
-    i++;
-    cout << "nonce \n";
-    //return "Completed tasks: " + QString::number(i) + "\n";
-}
-void vrMath::changeActiveProcessCnt(int cnt)
-{
-    //return "Active processes: " +  QString::number(cnt) + "\n";
-}
-void vrMath::changeActiveCompileProcessCnt(int cnt)
-{
-    //return "Active compiles: " +  QString::number(cnt) + "\n";
-}
-void vrMath::changeProcessCntCompileTotal(int cnt)
-{
-    //return "Compiling + que compile procesese" +  QString::number(cnt) + "\n";
-}
-void vrMath::changeProcessCntTotal(int cnt)
-{
-      //return "Running + que compile procesese" +  QString::number(cnt) + "\n";
-}
-void vrMath::changeProcessExeCntTotal(int cnt)
-{
-      //return "Executible + que compile procesese" +  QString::number(cnt) + "\n";
-}
+
 void vrMath::addActiveProcess(QString name,int id)
 {
     //ui->activeProcess->addItem(name,id);
@@ -90,14 +65,10 @@ void vrMath::killActiveProcess()
 void vrMath::dbStatus(int status, QString error)
 {
     if (status<0) {
-       // ui->textEdit->append("Database error: ");
-       // ui->textEdit->append(error);
+       cout << "Database error: \n";
+       cout << error.toStdString() << "\n";
     }
     else {
-        //ui->textEdit->append("Connected to database");
+        cout<< "Connected to database.\n";
     }
-}
-void vrMath::debug(QString text)
-{
-    //ui->textEdit->append(text);
 }

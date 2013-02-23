@@ -19,12 +19,13 @@ public:
     explicit server(QObject *parent = 0);
     void StartServer();
     int getActiveExeProcessCnt(), getActiveProcessCntTotal(),getActiveCompileProcessCnt();
-    int getProcessCntTotal(),getProcessCntExeTotal(),getProcessCntCompileTotal();
+    int getProcessCntTotal(),getProcessCntExeTotal(),getProcessCntCompileTotal(), getMakePath();
     void setExeMaxThreadCount(int cnt);
     void setCompileMaxThreadCount(int cnt);
     void setConnMaxThreadCount(int cnt);
     void killActiveProcess(int id);
-    QString serverPort,serverAddr,javaExecutePath,cppCompilerPath,cppCompilerBinDir,qtModules,qtCompilerPath,qtbinDir,qtDir,terminalPath,fortranCompilerPath,javaCompilerBinDir,javaCompilerPath;
+    QString serverPort,serverAddr,javaExecutePath,cppCompilerPath,cppCompilerBinDir,qtModules,qtCompilerPath,qtbinDir;
+    QString makePath,qtDir,terminalPath,fortranCompilerPath,javaCompilerBinDir,javaCompilerPath, dbServer, dbName, dbPassword, dbUser;
     int maxExeProgramCount,maxCompProgramCount;
 
 private:
@@ -51,7 +52,6 @@ signals:
     void activeProcessAdded(QString name,int id);
     void activeProcessRemoved(int id);
     void dbConnect(int status,QString error);
-    void sendDebug(QString);
 
 protected:
     void incomingConnection(int handle);
