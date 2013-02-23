@@ -145,7 +145,9 @@ void server::executeProgram(QStringList list)
     QString name="exe "+list[1]+" "+list[0];
     QString str,path;
     QDir progPath;
-
+    QString dir = QDir::current().absolutePath()+"/"+list[0];
+    QString dirOrig = QDir::current().absolutePath();
+    QString lang = list.at(2);
     if (list.at(2)=="Java")
     {
         QDir myDir(QDir::current().absolutePath()+"/"+list[0]+"/");
@@ -155,8 +157,9 @@ void server::executeProgram(QStringList list)
         filter=myDir.entryList(filter);
         if (filter.size()>0)
             prName=filter.at(0).split(".").at(0);
-        str="\""+this->javaExecutePath.replace("/","\\")+"\" -cp \""+QDir::current().absolutePath().replace("/","\\")+"\\"+list[0]+"\" "+prName;//+javaClass;
-        path=QDir::current().absolutePath().replace("/","\\")+"\\"+list[0]+"\\"+prName+".class";
+        //str="/usr/bin/sudo "+this->javaExecutePath+" "+prName+ " test ";//+javaClass;
+        str="java "+prName+ " test ";//+javaClass;
+        path=QDir::current().absolutePath()+"/"+list[0]+"/"+prName+".class";
     }
     else
     {
@@ -178,7 +181,17 @@ void server::executeProgram(QStringList list)
         connect(ProgramList.last(), SIGNAL(finished(int)),this , SLOT(finishedExeProgram(int)));
         if (activeExeProcessCnt<maxExeProgramCount)
          {
-            ProgramList.last()->start(str,list);
+            if( lang=="Java" )
+            {
+                ProgramList.last()->setWorkingDirectory( dir );
+                foreach( QString arg, list)
+                    str += " " + arg;
+                ProgramList.last()->start(str);
+            }
+            else
+                ProgramList.last()->start(str,list);
+            cout<< "calling: " << str.toStdString() << "\n";
+            //ProgramList.last()->start("java test eikit nx");
             increaseActiveExeProcessCnt();
             emit activeProcessAdded(name,ProgramParam.last().at(1).toInt());
          }
@@ -279,7 +292,7 @@ void server::compileProgram(QStringList list)
         QTextStream out(&file);
         out << script << "\n";
         file.close();
-        str="\""+javaCompilerPath+"\" \""+dir+".java\" ";
+        str="/usr/bin/sudo "+javaCompilerPath+" " + dir + ".java";
     }
     else if (list.at(2)=="Qt")
     {
@@ -312,7 +325,7 @@ void server::compileProgram(QStringList list)
         QTextStream out(&file);
         out << script << "\n";
         file.close();
-        str="\""+this->fortranCompilerPath+"\" \""+dir+".f\""+" -o \""+dir+".exe\"  \""+QDir::current().absolutePath()+"/lib/libflapack.a\" \""+QDir::current().absolutePath()+"/lib/libfblas.a\" \""+QDir::current().absolutePath()+"/lib/libftmglib.a\"";
+        str="/usr/bin/sudo "+this->fortranCompilerPath + " " + dir + ".f -o " + dir;
     }
     QProcess *proc=new QProcess(this);
     CompileList.append(proc);
@@ -390,14 +403,14 @@ void server::finishedCompProgram(int i)
                       QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
                       env.insert("PATH", env.value("Path") + ";"+javaCompilerBinDir);
                       QString dir=QDir::current().absolutePath()+"/"+list.at(0)+"/"+list.at(0);
-                      str="\""+javaCompilerPath+"\" \""+dir+".java\" ";
+                      str="/usr/bin/sudo "+javaCompilerPath+" " + dir + ".java";
                       CompileList.at(k)->setProcessEnvironment(env);
                       CompileList.at(k)->start(str);
                   }
                   else if (list.at(2)=="Fortran")
                   {
                       QString dir=QDir::current().absolutePath()+"/"+list.at(0)+"/"+list.at(0);
-                      str="\""+this->fortranCompilerPath+"\" \""+dir+".f\""+" -o \""+dir+".exe\" \""+QDir::current().absolutePath()+"/lib/libflapack.a\" \""+QDir::current().absolutePath()+"/lib/libfblas.a\" \""+QDir::current().absolutePath()+"/lib/libftmglib.a\"";
+                      str="/usr/bin/sudo "+this->fortranCompilerPath + " " + dir + ".f -o " + dir;
                       CompileList.at(k)->start(str);
                   }
                   else if (list.at(2)=="Qt")
