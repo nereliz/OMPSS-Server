@@ -270,7 +270,8 @@ void server::compileProgram(QStringList list)
     this->CompileParam.append(list);
     QString str;
     QString script;
-    QString dir=QDir::current().absolutePath()+"/"+list.at(0)+"/"+list.at(0);
+    QString dir=QDir::current().absolutePath() + "/" + list.at(0);
+    QString sfile = dir + "/" +list.at(0);
     QSqlQuery query(db);
     QString prname=list.at(0);
     QDir().mkdir(prname);
@@ -278,7 +279,7 @@ void server::compileProgram(QStringList list)
     if (list.at(2)=="C++")
     {
         env.insert("PATH", env.value("Path") + ";"+this->cppCompilerBinDir);
-        QFile file(dir+".cpp");
+        QFile file(sfile+".cpp");
         query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
         if (query.next())
         {
@@ -289,12 +290,12 @@ void server::compileProgram(QStringList list)
         QTextStream out(&file);
         out << script << "\n";
         file.close();
-        str= "/usr/bin/sudo " +  this->cppCompilerPath + " -Wall -W " + dir + ".cpp " + " -o " + dir;
+        str= "/usr/bin/sudo " +  this->cppCompilerPath + " -Wall -W " + sfile + ".cpp " + " -o " + sfile;
     }
     if (list.at(2)=="Java")
     {
         env.insert("PATH", env.value("Path") + ";"+javaCompilerBinDir);
-        QFile file(dir+".java");
+        QFile file(sfile+".java");
         query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
         if (query.next())
         {
@@ -305,11 +306,11 @@ void server::compileProgram(QStringList list)
         QTextStream out(&file);
         out << script << "\n";
         file.close();
-        str="/usr/bin/sudo "+javaCompilerPath+" " + dir + ".java";
+        str="/usr/bin/sudo "+javaCompilerPath+" " + sfile + ".java";
     }
     else if (list.at(2)=="Qt")
     {
-        QFile file(dir+".cpp");
+        QFile file(sfile+".cpp");
         query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
         if (query.next())
         {
@@ -327,7 +328,7 @@ void server::compileProgram(QStringList list)
     }
     else if (list.at(2)=="Fortran")
     {
-        QFile file(dir+".f");
+        QFile file(sfile+".f");
         query.exec("SELECT  cp_code FROM math.costum_program WHERE  cp_id="+list.at(0)+" order by cp_created desc");
         if (query.next())
         {
@@ -338,7 +339,7 @@ void server::compileProgram(QStringList list)
         QTextStream out(&file);
         out << script << "\n";
         file.close();
-        str="/usr/bin/sudo "+this->fortranCompilerPath + " " + dir + ".f -o " + dir;
+        str="/usr/bin/sudo "+this->fortranCompilerPath + " " + sfile + ".f -o " + sfile;
     }
     QProcess *proc=new QProcess(this);
     CompileList.append(proc);
@@ -349,12 +350,11 @@ void server::compileProgram(QStringList list)
       {
          if (CompileParam.last().at(2)=="C++")
          {
-             cout<< "command:" << str.toStdString() << "\n";
             CompileList.last()->setProcessEnvironment(env);
             CompileList.last()->start(str);
          }
          else if (CompileParam.last().at(2)=="Java")
-         { // qDebug()<<"start java";
+         {
             CompileList.last()->setProcessEnvironment(env);
             CompileList.last()->start(str);
          }
@@ -374,7 +374,6 @@ void server::compileProgram(QStringList list)
 }
 void server::finishedCompProgram(int i)
 {
-    cout<< "Debug: Finished comp slot";
     int j=CompileList.indexOf((QProcess*)sender());
     QSqlQuery query(db);
     QDateTime dateTime = QDateTime::currentDateTime();
@@ -402,12 +401,13 @@ void server::finishedCompProgram(int i)
                   int currnetID=list.at(1).toInt();
                   QString name="comp "+list[1]+" "+list[0];
                   QString str;
-                  QString dir=QDir::current().absolutePath()+"/"+list.at(0)+"/"+list.at(0);
+                  QString dir=QDir::current().absolutePath() + "/" + list.at(0);
+                  QString sfile = dir + "/" +list.at(0);
                   if (list.at(2)=="C++")
                   {
                       QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
                       env.insert("PATH", env.value("Path") + ";"+this->cppCompilerBinDir);
-                      str = "/usr/bin/sudo " + this->cppCompilerPath + " -Wall -W " + dir + ".cpp " + " -o " + dir;
+                      str = "/usr/bin/sudo " + this->cppCompilerPath + " -Wall -W " + sfile + ".cpp " + " -o " + sfile;
                       CompileList.at(k)->setProcessEnvironment(env);
                       CompileList.at(k)->start(str);
                   }
@@ -415,18 +415,18 @@ void server::finishedCompProgram(int i)
                   {
                       QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
                       env.insert("PATH", env.value("Path") + ";"+javaCompilerBinDir);
-                      str="/usr/bin/sudo "+javaCompilerPath+" " + dir + ".java";
+                      str="/usr/bin/sudo "+javaCompilerPath+" " + sfile + ".java";
                       CompileList.at(k)->setProcessEnvironment(env);
                       CompileList.at(k)->start(str);
                   }
                   else if (list.at(2)=="Fortran")
                   {
-                      str="/usr/bin/sudo "+this->fortranCompilerPath + " " + dir + ".f -o " + dir;
+                      str="/usr/bin/sudo "+this->fortranCompilerPath + " " + sfile + ".f -o " + sfile;
                       CompileList.at(k)->start(str);
                   }
                   else if (list.at(2)=="Qt")
                   {
-                       str = "/usr/bin/sudo " + QDir::current().absolutePath() + "/qtCompiler.sh " + QDir::current().absolutePath()+"/"+list.at(0);
+                       str = "/usr/bin/sudo " + QDir::current().absolutePath() + "/qtCompiler.sh " + dir;
                        str += " " + this->qtCompilerPath + " " + this->makePath;
                        CompileList.at(k)->start(str);
                   }
