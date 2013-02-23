@@ -146,7 +146,7 @@ void server::executeProgram(QStringList list)
     QString name="binary "+list[1]+" "+list[0];
     QString str,path;
     QDir progPath;
-    QString dir = QDir::current().absolutePath()+"/"+list[0];
+    QString dir = QDir::current().absolutePath()+"/binaries/"+list[0];
     QString lang = list.at(2);
     if (list.at(2)=="Java")
     {
@@ -220,7 +220,7 @@ void server::finishedExeProgram(int i)
               if (ProgramList.at(k)->state()==QProcess::NotRunning)
               {
                   list=ProgramParam.at(k);
-                  dir = QDir::current().absolutePath()+"/"+list[0];
+                  dir = QDir::current().absolutePath()+"/binaries/"+list[0];
                   lang = list.at(2);
                   int currnetID=list.at(1).toInt();
                   QString name="binary "+list[1]+" "+list[0];
@@ -270,11 +270,12 @@ void server::compileProgram(QStringList list)
     this->CompileParam.append(list);
     QString str;
     QString script;
-    QString dir=QDir::current().absolutePath() + "/" + list.at(0);
+    QString dir=QDir::current().absolutePath() + "/binaries/" + list.at(0);
     QString sfile = dir + "/" +list.at(0);
     QSqlQuery query(db);
     QString prname=list.at(0);
-    QDir().mkdir(prname);
+    QDir().mkdir("binaries");
+    QDir().mkdir("binaries/" + prname);
 
     if (list.at(2)=="C++")
     {
@@ -401,7 +402,7 @@ void server::finishedCompProgram(int i)
                   int currnetID=list.at(1).toInt();
                   QString name="comp "+list[1]+" "+list[0];
                   QString str;
-                  QString dir=QDir::current().absolutePath() + "/" + list.at(0);
+                  QString dir=QDir::current().absolutePath() + "/binaries/" + list.at(0);
                   QString sfile = dir + "/" +list.at(0);
                   if (list.at(2)=="C++")
                   {

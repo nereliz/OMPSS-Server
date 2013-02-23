@@ -77,22 +77,14 @@ void Task::run(){
                                                             query.exec("INSERT INTO math.answer_param_list (anpl_an_id, anpl_pv_id) VALUES (@an_id, @pv_id)");
                                                             query.exec("SELECT BD_DATA FROM math.big_data where BD_ID="+sits.value().toString());
                                                             query.next();
-                                                            if (lang=="Qt")
+                                                            file.setFileName(QDir::current().absolutePath()+"/binaries/"+program_id+"/"+sits.value().toString());
+                                                            params<<QDir::current().absolutePath()+"/binaries/"+program_id+"/"+sits.value().toString();
+                                                            if (file.open(QIODevice::WriteOnly | QIODevice::Text))
                                                             {
-                                                                  file.setFileName(QDir::current().absolutePath()+"/"+program_id+"/release/"+sits.value().toString());
-                                                                  params<<QDir::current().absolutePath()+"/"+program_id+"/release/"+sits.value().toString();
+                                                                QTextStream out(&file);
+                                                                out << query.value(0).toByteArray();
                                                             }
-                                                            else
-                                                            {
-                                                               file.setFileName(QDir::current().absolutePath()+"/"+program_id+"/"+sits.value().toString());
-                                                               params<<QDir::current().absolutePath()+"/"+program_id+"/"+sits.value().toString();
-                                                            }
-                                                               if (file.open(QIODevice::WriteOnly | QIODevice::Text))
-                                                               {
-                                                                   QTextStream out(&file);
-                                                                   out << query.value(0).toByteArray();
-                                                               }
-                                                               file.close();
+                                                            file.close();
                                                        }
                                                }
                                           }
