@@ -71,6 +71,7 @@ void Task::run(){
                                                             sits.next();
 
                                                             query.exec("SELECT @pp_id:=pp_id FROM math.program_param_list,math.program_param WHERE ppl_pp_id=pp_id and ppl_cp_id="+program_id+" and pp_name='"+sits.name()+"'");
+                                                            cout << program_id.toStdString() << " program id \n";
                                                             query.prepare("INSERT INTO math.answer_param_value (pv_value, pv_pp_id) VALUES (:val, @pp_id);");
                                                             query.bindValue(":val",sits.value().toString());
                                                             query.exec();

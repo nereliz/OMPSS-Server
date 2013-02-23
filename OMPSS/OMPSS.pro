@@ -28,4 +28,5 @@ HEADERS += \
     vrmath.h
 
 OTHER_FILES += \
-    config.ini
+    config.ini \
+    qtCompiler.sh

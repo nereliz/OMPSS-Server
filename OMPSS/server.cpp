@@ -158,11 +158,6 @@ void server::executeProgram(QStringList list)
         str="\""+this->javaExecutePath.replace("/","\\")+"\" -cp \""+QDir::current().absolutePath().replace("/","\\")+"\\"+list[0]+"\" "+prName;//+javaClass;
         path=QDir::current().absolutePath().replace("/","\\")+"\\"+list[0]+"\\"+prName+".class";
     }
-    else if (list.at(2)=="Qt")
-    {
-        str=QDir::current().absolutePath()+"/"+list[0]+"/release/"+list[0]+".exe";
-        path=str;
-    }
     else
     {
         str=QDir::current().absolutePath()+"/"+list[0]+"/"+list[0];
@@ -215,11 +210,7 @@ void server::finishedExeProgram(int i)
                   int currnetID=list.at(1).toInt();
                   QString name="exe "+list[1]+" "+list[0];
                   QString str;
-                  if (list.at(2)=="Qt")
-                  {
-                     str=QDir::current().absolutePath()+"/"+list[0]+"/release/"+list[0]+".exe";
-                  }
-                  else if (list.at(2)=="Java")
+                  if (list.at(2)=="Java")
                   {
                      QDir myDir(QDir::current().absolutePath()+"/"+list[0]+"/");
                      QStringList filter;
@@ -304,25 +295,9 @@ void server::compileProgram(QStringList list)
         out << script << "\n";
         file.close();
 
-        QFile file2(dir+".pro");
-           if (!file2.open(QIODevice::WriteOnly | QIODevice::Text))
-           {
-              ;;
-           }
-        QTextStream out2(&file2);
-           out2 << " TEMPLATE = app" << "\n";
-           out2 << "TARGET = " << "\n";
-           out2 << "DEPENDPATH += ." << "\n";
-           out2 << "INCLUDEPATH += ." << "\n";
-           out2 << "SOURCES += "+list.at(0)+".cpp" << "\n";
-           out2 << "CONFIG   += console" << "\n";
-           out2 << "CONFIG   -= app_bundle" << "\n";
-           out2 << "CONFIG += release" << "\n";
-           out2 << "CONFIG += thread" << "\n";
-           out2 << "QT       -= gui" << "\n";
-           out2 << "QT       += "+qtModules << "\n";
-        file2.close();
-        str="\""+this->qtCompilerPath+"\" \""+dir+".cpp\""+" -o \""+dir+".exe\"";
+        str = "/usr/bin/sudo " + QDir::current().absolutePath() + "/qtCompiler.sh " + QDir::current().absolutePath()+"/"+list.at(0);
+        str += " " + this->qtCompilerPath + " /usr/bin/make";
+
     }
     else if (list.at(2)=="Fortran")
     {
@@ -362,38 +337,7 @@ void server::compileProgram(QStringList list)
          }
          else if(CompileParam.last().at(2)=="Qt")
          {
-             QStringList arg;
-             arg<<"set QTDIR="+this->qtDir;
-             arg<<"set PATH="+this->qtbinDir+";%PATH%";
-             arg<<"set PATH=%QTDIR%\\bin;%PATH%";
-             CompileList.last()->start(this->terminalPath);
-             CompileList.last()->write(arg.at(0).toLatin1());
-             CompileList.last()->waitForBytesWritten();
-             CompileList.last()->write("\n\r");
-             CompileList.last()->write(arg.at(1).toLatin1());
-             CompileList.last()->waitForBytesWritten();
-             CompileList.last()->write("\n\r");
-             CompileList.last()->write(arg.at(2).toLatin1());
-             CompileList.last()->waitForBytesWritten();
-             CompileList.last()->write("\n\r");
-             str="cd "+QDir::current().absolutePath().replace("/","\\")+"\\"+CompileParam.last().at(0);
-             CompileList.last()->write(str.toLatin1());
-             CompileList.last()->waitForBytesWritten();
-             CompileList.last()->write("\n\r");
-             str="qmake";
-             CompileList.last()->write(str.toLatin1());
-             CompileList.last()->waitForBytesWritten();
-             CompileList.last()->write("\n\r");
-             CompileList.last()->waitForBytesWritten();
-             str="mingw32-make";
-             CompileList.last()->write(str.toLatin1());
-             CompileList.last()->waitForBytesWritten();
-             CompileList.last()->write("\n\r");
-             CompileList.last()->waitForBytesWritten();
-             CompileList.last()->write("exit");
-             CompileList.last()->waitForBytesWritten();
-             CompileList.last()->write("\n\r");
-             CompileList.last()->waitForBytesWritten();
+            CompileList.last()->start(str);
          }
          else CompileList.last()->start(str);
          this->activeCompileProcessCnt++;
@@ -458,42 +402,14 @@ void server::finishedCompProgram(int i)
                   }
                   else if (list.at(2)=="Qt")
                   {
-                      QStringList arg;
-                      arg<<"set QTDIR="+this->qtDir;
-                      arg<<"set PATH="+this->qtbinDir+";%PATH%";
-                      arg<<"set PATH=%QTDIR%\\bin;%PATH%";
-                      CompileList.last()->start(this->terminalPath);
-                      CompileList.last()->write(arg.at(0).toLatin1());
-                      CompileList.last()->waitForBytesWritten();
-                      CompileList.last()->write("\n\r");
-                      CompileList.last()->write(arg.at(1).toLatin1());
-                      CompileList.last()->waitForBytesWritten();
-                      CompileList.last()->write("\n\r");
-                      CompileList.last()->write(arg.at(2).toLatin1());
-                      CompileList.last()->waitForBytesWritten();
-                      CompileList.last()->write("\n\r");
-                      str="cd "+QDir::current().absolutePath().replace("/","\\")+"\\"+CompileParam.last().at(0);
-                      CompileList.last()->write(str.toLatin1());
-                      CompileList.last()->waitForBytesWritten();
-                      CompileList.last()->write("\n\r");
-                      str="qmake";
-                      CompileList.last()->write(str.toLatin1());
-                      CompileList.last()->waitForBytesWritten();
-                      CompileList.last()->write("\n\r");
-                      CompileList.last()->waitForBytesWritten();
-                      str="mingw32-make";
-                      CompileList.last()->write(str.toLatin1());
-                      CompileList.last()->waitForBytesWritten();
-                      CompileList.last()->write("\n\r");
-                      CompileList.last()->waitForBytesWritten();
-                      CompileList.last()->write("exit");
-                      CompileList.last()->waitForBytesWritten();
-                      CompileList.last()->write("\n\r");
-                      CompileList.last()->waitForBytesWritten();
+                       str = "/usr/bin/sudo " + QDir::current().absolutePath() + "/qtCompiler.sh " + QDir::current().absolutePath()+"/"+list.at(0);
+                       str += " " + this->qtCompilerPath + " /usr/bin/make";
+                       CompileList.at(k)->start(str);
                   }
-                      emit activeProcessAdded(name,currnetID);
-                      this->activeCompileProcessCnt++;
-                      this->activeCompileProcessCntChange(activeCompileProcessCnt);
+
+                  emit activeProcessAdded(name,currnetID);
+                  this->activeCompileProcessCnt++;
+                  this->activeCompileProcessCntChange(activeCompileProcessCnt);
                   break;
               }
           }
