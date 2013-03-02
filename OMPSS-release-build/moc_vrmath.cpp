@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'vrmath.h'
 **
-** Created: Sat Feb 23 15:11:16 2013
+** Created: Sat Mar 2 12:42:11 2013
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.1)
 **
 ** WARNING! All changes made in this file will be lost!
