@@ -1,0 +1,34 @@
+#!/bin/bash
+# LifeRay Startup Service script v1.0 by Faraz Haider 6 May 2012
+# acts as startup service script for LifeRay Portal.
+# USAGE: start|stop|status|logs
+#
+case "$1" in
+start)
+echo "Starting OMPSS..."
+sudo /etc/ompss/ompss.sh start
+;;
+stop)
+echo "Stopping OMPSS..."
+sudo /etc/ompss/ompss.sh stop
+;;
+restart)
+echo "Stopping OMPSS..."
+sudo /etc/ompss/ompss.sh stop
+echo "Starting OMPSS..."
+sudo /etc/ompss/ompss.sh start
+;;
+logs)
+echo "See the logs of the LifeRay Web Portal."
+;;
+status)
+# Check to see if the process is running
+echo "See status of the LifeRay Web Portal."
+;;
+ 
+*)
+echo "LifeRay Web Portal Service"
+echo $"Usage: $0 {start|stop|status|logs}"
+exit 1
+esac
+exit 0
