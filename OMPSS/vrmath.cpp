@@ -10,8 +10,8 @@ vrMath::vrMath()
 {
 
     QMap<QString, QString> map;
-
-    QSettings settings( "config.ini", QSettings::IniFormat );
+    QString dir = QDir::current().absolutePath();
+    QSettings settings( dir+"/config.ini", QSettings::IniFormat );
     settings.beginGroup("user");
     foreach( const QString &childKey, settings.allKeys() )
         map.insert( childKey, settings.value( childKey ).toString() );
