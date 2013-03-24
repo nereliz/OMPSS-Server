@@ -19,11 +19,13 @@ echo "Starting OMPSS..."
 sudo /etc/ompss/ompss.sh start
 ;;
 logs)
-echo "See the logs of the LifeRay Web Portal."
+echo "OMPSS Logs."
+sudo /etc/ompss/ompss.sh log
 ;;
 status)
 # Check to see if the process is running
-echo "See status of the LifeRay Web Portal."
+echo "OMPSS Status"
+sudo /etc/ompss/ompss.sh status
 ;;
  
 *)
