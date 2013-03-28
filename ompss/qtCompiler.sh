@@ -1,1 +1,1 @@
-/home/nerijus/workspace/OMPSS-Server.git/OMPSS/qtCompiler.sh
+../OMPSS/qtCompiler.sh
