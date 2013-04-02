@@ -275,8 +275,8 @@ void server::compileProgram(QStringList list)
     QString sfile = dir + "/" +list.at(0);
     QSqlQuery query(db);
     QString prname=list.at(0);
-    QDir().mkdir("binaries");
-    QDir().mkdir("binaries/" + prname);
+    QDir().mkdir( this->binaryPath + "/binaries");
+    QDir().mkdir( this->binaryPath + "binaries/" + prname);
 
     if (list.at(2)=="C++")
     {
@@ -288,7 +288,10 @@ void server::compileProgram(QStringList list)
             script=query.value(0).toString();
         }
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-                   cout << "File opening failed \n";
+        {
+            cout << sfile.toStdString() + "\n";
+            cout << "File opening failed \n";
+        }
         QTextStream out(&file);
         out << script << "\n";
         file.close();
@@ -428,7 +431,7 @@ void server::finishedCompProgram(int i)
                   }
                   else if (list.at(2)=="Qt")
                   {
-                       str = "/usr/bin/sudo " + this->binaryPath + "/qtCompiler.sh " + dir;
+                       str = "/usr/bin/sudo " +  QDir::current().absolutePath() + "/qtCompiler.sh " + dir;
                        str += " " + this->qtCompilerPath + " " + this->makePath;
                        CompileList.at(k)->start(str);
                   }
