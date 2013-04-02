@@ -276,7 +276,7 @@ void server::compileProgram(QStringList list)
     QSqlQuery query(db);
     QString prname=list.at(0);
     QDir().mkdir( this->binaryPath + "/binaries");
-    QDir().mkdir( this->binaryPath + "binaries/" + prname);
+    QDir().mkdir( this->binaryPath + "/binaries/" + prname);
 
     if (list.at(2)=="C++")
     {
