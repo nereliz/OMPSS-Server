@@ -31,7 +31,7 @@ public:
     void run();
     int id;
     int socketDescriptor;
-    QString programType;
+    QString programType, binaryPath;
     QSqlDatabase cdb;
     QByteArray data;
     QString token, program_id;

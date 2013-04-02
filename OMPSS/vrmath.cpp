@@ -38,6 +38,7 @@ vrMath::vrMath()
     myServer->dbName = map["dbName"];
     myServer->dbUser = map["dbUser"];
     myServer->dbPassword = map["dbPassword"];
+    myServer->binaryPath = map["binaryPath"];
 
     connect(myServer, SIGNAL(activeProcessAdded(QString,int)), this, SLOT(addActiveProcess(QString,int)));
     connect(myServer, SIGNAL(activeProcessRemoved(int)), this, SLOT(remActiveProcess(int)));

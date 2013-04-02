@@ -77,8 +77,8 @@ void Task::run(){
                                                             query.exec("INSERT INTO math.answer_param_list (anpl_an_id, anpl_pv_id) VALUES (@an_id, @pv_id)");
                                                             query.exec("SELECT BD_DATA FROM math.big_data where BD_ID="+sits.value().toString());
                                                             query.next();
-                                                            file.setFileName(QDir::current().absolutePath()+"/binaries/"+program_id+"/"+sits.value().toString());
-                                                            params<<QDir::current().absolutePath()+"/binaries/"+program_id+"/"+sits.value().toString();
+                                                            file.setFileName(this->binaryPath+"/binaries/"+program_id+"/"+sits.value().toString());
+                                                            params<<this->binaryPath+"/binaries/"+program_id+"/"+sits.value().toString();
                                                             if (file.open(QIODevice::WriteOnly | QIODevice::Text))
                                                             {
                                                                 QTextStream out(&file);

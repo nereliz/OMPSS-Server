@@ -25,7 +25,8 @@ public:
     void setConnMaxThreadCount(int cnt);
     void killActiveProcess(int id);
     QString serverPort,serverAddr,javaExecutePath,cppCompilerPath,cppCompilerBinDir,qtModules,qtCompilerPath,qtbinDir;
-    QString makePath,qtDir,terminalPath,fortranCompilerPath,javaCompilerBinDir,javaCompilerPath, dbServer, dbName, dbPassword, dbUser;
+    QString makePath,qtDir,terminalPath,fortranCompilerPath,javaCompilerBinDir,javaCompilerPath;
+    QString binaryPath, dbServer, dbName, dbPassword, dbUser;
     int maxExeProgramCount,maxCompProgramCount;
 
 private:
