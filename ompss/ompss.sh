@@ -14,7 +14,7 @@ if [ "${args[0]}" == "start" ]
 	   RESULT=`ps -ef | grep ${OLDPID} | grep ${SCRIPTNAME}`  
 
 	   if [ -n "${RESULT}" ]; then
-	     echo "Script already running! Exiting"
+	     echo "Service already running! Exiting"
 	     exit 255
 	   else
 	      PID=`ps -ef | grep ${SCRIPTNAME} | grep -v sudo | grep -v color | head -n1 |  awk ' {print $2;} '`
@@ -33,13 +33,20 @@ elif [ "${args[0]}" == "stop" ]
 	   RESULT=`ps -ef | grep ${OLDPID} | grep ${SCRIPTNAME}`  
 
 	   if [ -n "${RESULT}" ]; then
-	     echo "Script is stopping now!"
+	     echo "Service is stopping now!"
 	     `sudo kill -9 ${OLDPID}`
 	   else
-	      echo "Process was not found! Exiting"
+	      echo "Service was not found! Exiting"
 	   fi
 	   rm ${PIDFILE}
 	else
-	   echo "Process was not found! Exiting"
+	   echo "Service was not found! Exiting"
+	fi
+elif [ "${args[0]}" == "status" ]
+   then 
+	if [ -f ${PIDFILE} ]; then
+	   echo "Service is running!"
+	else
+	   echo "Service is stoped!"
 	fi
 fi
