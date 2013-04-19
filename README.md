@@ -1,7 +1,7 @@
 OMPSS-Service
 ==============
 
-Internetinio matematinio programavimo ir projektavimo serverine paslauga skirta Ubuntu operacinei sistemai. 
+Internetinio matematinio programavimo ir projektavimo serverine paslauga skirta *Ubuntu* operacinei sistemai. 
 
 Diegimas:
 --------------
