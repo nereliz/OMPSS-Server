@@ -25,4 +25,11 @@ Konfiguravimas:
 
 Konfiguracijoms naudojama */etc/ompss/config.ini* rinkmena.
 
+Pastaba:
+-------
+
+Projekto serverines paslaugos kodo branduolys buvo sukurtas kiek anksciau ir skirtas *Microsoft Windows*. Sio projekto ribose 
+jis buvo kiek pakoreguotas, kad ji butu galima naudoti *Ubuntu* aplinkoje bei prideti papildomi skriptai leidziantis serverine
+programa naudoti kaip paslauga.
+
 Projektas reazlizuotas kaip dalis baigimojo magistraturos darbo Siauliu Universitete.
