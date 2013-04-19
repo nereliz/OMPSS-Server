@@ -32,4 +32,4 @@ Projekto serverines paslaugos kodo branduolys buvo sukurtas kiek anksciau ir ski
 jis buvo kiek pakoreguotas, kad ji butu galima naudoti *Ubuntu* aplinkoje bei prideti papildomi skriptai leidziantis serverine
 programa naudoti kaip paslauga.
 
-Projektas reazlizuotas kaip dalis baigimojo magistraturos darbo Siauliu Universitete.
+Projektas realizuotas kaip dalis baigimojo magistraturos darbo Siauliu Universitete.
