@@ -5,19 +5,19 @@ Internetinio matematinio programavimo ir projektavimo serverine paslauga skirta 
 
 Diegimas:
 --------------
-* Parsisiuskite projekta pasinaudoja zemiau pateikta komanda:
+Parsisiuskite projekta pasinaudoja zemiau pateikta komanda:
 
-  git clone https://github.com/nereliz/OMPSS-Server.git $dir
+    git clone https://github.com/nereliz/OMPSS-Server.git $dir
 
-* Tada sukurkite nuoroda i vydkomaji aplanka:
+Tada sukurkite nuoroda i vydkomaji aplanka:
 
-  sudo ln $dir/ompss /etc/ompss
+    sudo ln $dir/ompss /etc/ompss
 
-* Sekantis zingsnis sukurti nuoroda i *init.d* aplanka
+Sekantis zingsnis sukurti nuoroda i *init.d* aplanka
 
-  sudo ln /etc/ompss/init.d /etc/init.d/ompss
+    sudo ln /etc/ompss/init.d/opss /etc/init.d/ompss
 
-* **$dir** jusu pasiriktas aplankas
+**$dir** jusu pasiriktas aplankas
 
 
 Konfiguravimas:
